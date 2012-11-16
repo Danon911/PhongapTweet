@@ -1,0 +1,93 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <title>Phonegap Twitter</title>
+        <style>
+            *{margin:0;padding:0;}
+            .clearboth{clear:both;}
+            body { color:#000; font-family:helvetica;}
+            h3{color:#fff;}
+            ul { list-style: none; }
+            li { padding-bottom: 1em; padding:10px; border-bottom:1px solid #000; }
+            img { float: left; margin-right:10px;}
+            a { text-decoration: none; color: pink; }
+            p{font-size:14px; letter-spacing:.1em; color:#000;}
+            </style>
+        
+        <script>
+            function onBodyLoad() {		
+                document.addEventListener("deviceready",onDeviceReady,false);
+            }
+            </script>
+    </head>
+    
+    <body>
+        <ul id="tweets">
+            <script id="tweets-template" type="text/x-handlebars-template">
+                {{#each this}}
+                <li>
+                <img src="{{thumb}}" alt="{{author}}">
+                <p>{{tweet}}</p>
+                <div class="clearboth"></div>
+                </li>
+                {{/each}}
+                </script>		
+        </ul>
+        
+        
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+        
+        
+        <script src="https://github.com/downloads/wycats/handlebars.js/handlebars-1.0.rc.1.js"></script>
+        
+        
+        <script>
+            
+            (function() {
+             
+             var Twitter = {
+             init: function( config ) {
+             this.url = 'http://search.twitter.com/search.json?q=' + config.query + '&callback=?';
+             this.template = config.template;
+             this.container = config.container;
+             
+             this.fetch();
+             },
+             
+             attachTemplate: function() {
+             var template = Handlebars.compile( this.template );
+             
+             this.container.append( template( this.tweets ) );
+             
+             },
+             
+             fetch: function() {
+             var self = this;
+             
+             $.getJSON( this.url, function( data ) {
+                       self.tweets = $.map( data.results, function( tweet ) {
+                                           return {
+                                           author: tweet.from_user,
+                                           tweet: tweet.text,
+                                           thumb: tweet.profile_image_url,
+                                           url: 'http://twitter.com/' + tweet.from_user + '/status/' + tweet.id_str
+                                           };
+                                           });
+                       
+                       self.attachTemplate(); 
+                       });
+             }
+             };
+             
+             Twitter.init({
+                          template: $('#tweets-template').html(),
+                          container: $('#tweets'),
+                          query: '%23phonegap'
+                          });
+             
+             })();
+            
+            </script>
+        
+    </body>
+</html>
